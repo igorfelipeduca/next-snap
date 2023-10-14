@@ -1,113 +1,287 @@
-import Image from 'next/image'
+"use client";
 
-export default function Home() {
+import React, { useEffect, useState } from "react";
+import ImageComposition from "../components/ImageComposition";
+import { Button, Image } from "@nextui-org/react";
+import { LocateOff, Share } from "lucide-react";
+import { Toaster, toast } from "sonner";
+
+interface Image {
+  type?: string;
+  url: string;
+}
+
+const Home: React.FC = () => {
+  const [imageList, setImageList] = useState<Image[]>([]);
+  const [backupImageList, setBackupImageList] = useState<Image[]>([]);
+  const [imagePng, setImagePng] = useState<string>("");
+
+  const overlay = imageList.find((image) => image.type === "overlay")?.url;
+
+  const background = imageList.find(
+    (image) => image.type === "background"
+  )?.url;
+
+  const handleUploadImage = () => {
+    const input = document.getElementById("dropzone-file") as HTMLInputElement;
+
+    if (!input.files?.length) return;
+
+    const files = Array.from(input.files);
+
+    const images = files.map((file) => {
+      const url = URL.createObjectURL(file);
+
+      return {
+        url,
+        type: overlay ? "background" : "overlay",
+      };
+    });
+
+    setImageList((prev) => [...prev, ...images]);
+
+    const overlayExists = images.find((image) => image.type === "overlay");
+    const backgroundExists = images.find(
+      (image) => image.type === "background"
+    );
+
+    if (overlayExists) toast.success("📦 Overlay image uploaded!");
+    if (backgroundExists) toast.success("📦 Background image uploaded!");
+
+    if (backupImageList.length === 2) {
+      setBackupImageList(images);
+
+      console.log({ backupImageList });
+    }
+
+    setBackupImageList((prev) => [...prev, ...images]);
+  };
+
+  const shareOnTwitter = () => {
+    const tweetText =
+      "I just created a beautiful screenshot with next-snap 🎉 \n You should really check out \n https://";
+
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      tweetText
+    )}&hashtags=nextjs,nextsnap,indiehackers`;
+
+    window.open(url, "_blank");
+  };
+
+  useEffect(() => {
+    if (overlay && background)
+      toast.success("🎉 Snap ready! What do you think?", {
+        action: {
+          label: "Share!",
+          onClick: shareOnTwitter,
+        },
+      });
+  }, [overlay, background]);
+
+  const handleReset = () => {
+    setImageList([]);
+
+    toast("🗑️ Snap reseted!", {
+      action: {
+        label: "Undo",
+        onClick: undoReset,
+      },
+    });
+  };
+
+  const undoReset = () => {
+    setImageList(backupImageList);
+
+    toast.success("🤝 Snap restored! Let me get you back on track.");
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="min-h-screen flex flex-col justify-between">
+      <div className="p-4 border-b border-zinc-700 flex items-center justify-between">
+        <h1 className="text-zinc-300 text-lg">next-snap</h1>
+      </div>
+
+      {overlay && background ? (
+        <div className="py-8 flex justify-end px-16">
+          <div className="flex items-center gap-x-2">
+            <Button
+              className="rounded-lg bg-zinc-950 text-zinc-400 border border-zinc-700 lg:text-lg"
+              onClick={handleReset}
+            >
+              <LocateOff className="h-4 w-4" /> Reset snap
+            </Button>
+
+            <Button
+              className="rounded-lg bg-zinc-950 text-zinc-400 border border-zinc-700 lg:text-lg"
+              onClick={shareOnTwitter}
+            >
+              <Share className="h-4 w-4" /> Share snap
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+
+      <div className="flex flex-col">
+        <div className="flex justify-center pt-16">
+          <h1 className="text-3xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-zinc-300 to-zinc-500 font-bold">
+            next-snap
+          </h1>
+        </div>
+
+        <div className="flex justify-center mt-8 px-16">
+          <h3 className="text-md text-zinc-400">
+            beautiful screenshots with your own browser. you just need some
+            image composing.
+          </h3>
         </div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
+      {overlay && background ? (
+        <div className="mt-16 px-8">
+          <ImageComposition
+            background={background ?? ""}
+            overlay={overlay ?? ""}
+            imagePng={imagePng}
+            setImagePng={setImagePng}
+          />
+
+          <div className="mt-4 lg:px-48">
+            <span className="text-zinc-600">Click to copy the image</span>
+          </div>
+        </div>
+      ) : (
+        <>
+          {overlay ? (
+            <div className="px-8 pt-16 lg:flex lg:justify-center">
+              <Image
+                src={overlay}
+                alt="overlay"
+                isBlurred
+                className="lg:max-w-5xl"
+              />
+            </div>
+          ) : (
+            <div className="flex justify-center mt-16 px-8">
+              <div className="flex items-center justify-center w-full lg:max-w-3xl">
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-950 hover:bg-gray-100 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm px-4 text-center">
+                      Upload your <span className="font-semibold">overlay</span>{" "}
+                      image.
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      SVG, PNG, JPG or GIF (MAX. 800x400px)
+                    </p>
+                  </div>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleUploadImage}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {background ? (
+            <div className="px-8 pt-16 lg:flex lg:justify-center">
+              <Image
+                src={background}
+                alt="background"
+                isBlurred
+                className="lg:max-w-5xl"
+              />
+            </div>
+          ) : (
+            <div className="flex justify-center mt-16 px-8">
+              <div className="flex items-center justify-center w-full lg:max-w-3xl">
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-950 hover:bg-gray-100 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm px-4 text-center">
+                      Upload your{" "}
+                      <span className="font-semibold">background</span> image.
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      SVG, PNG, JPG or GIF (MAX. 800x400px)
+                    </p>
+                  </div>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleUploadImage}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="mt-16 border-t border-zinc-700 py-4 px-8 flex gap-x-2 items-center">
         <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+          src={"https://i.ibb.co/Bwzr3t2/duca.jpg"}
+          alt="ducaswtf"
+          isBlurred
+          className="h-10 w-10 rounded-full"
         />
+
+        <span className="text-zinc-400">
+          made by{" "}
+          <a
+            href="https://twitter.com/ducaswtf"
+            className="text-transparent bg-clip-text bg-gradient-to-br from-zinc-200 to-zinc-400 font-medium"
+          >
+            Duca
+          </a>
+          .
+        </span>
       </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <Toaster className="z-50" />
     </main>
-  )
-}
+  );
+};
+
+export default Home;

@@ -9,19 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@nextui-org/react": "^2.1.13",
+    "@vercel/analytics": "^1.1.1",
+    "add": "^2.0.6",
+    "copy-image-clipboard": "^2.1.2",
+    "framer-motion": "^10.16.4",
+    "fs": "^0.0.1-security",
+    "html-to-image": "^1.11.11",
+    "lucide-react": "^0.287.0",
+    "next": "13.5.4",
     "react": "^18",
     "react-dom": "^18",
-    "next": "13.5.4"
+    "sonner": "^1.0.3",
+    "valtio": "^1.11.2",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
+    "eslint": "^8",
+    "eslint-config-next": "13.5.4",
     "postcss": "^8",
     "tailwindcss": "^3",
-    "eslint": "^8",
-    "eslint-config-next": "13.5.4"
+    "typescript": "^5"
   }
 }
