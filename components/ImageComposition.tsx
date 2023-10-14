@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
 import { Image } from "@nextui-org/react";
 import { copyImageToClipboard } from "copy-image-clipboard";
+import { Toaster, toast } from "sonner";
 
 interface ImageCompositionProps {
   background: string;
@@ -38,7 +39,7 @@ const ImageComposition: React.FC<ImageCompositionProps> = ({
 
       if (resultPng) {
         copyImageToClipboard(resultPng).then(() => {
-          console.log("Image Copied");
+          toast("📎 Now the image is in your clipboard");
         });
       }
 
@@ -49,26 +50,35 @@ const ImageComposition: React.FC<ImageCompositionProps> = ({
   };
 
   return (
-    <div className="lg:flex lg:justify-center">
-      <button onClick={copyToClipboard}>
-        <div
-          ref={compositeRef}
-          className="w-full h-full lg:max-w-5xl lg:h-auto aspect-auto relative flex items-center justify-center"
-        >
-          <Image alt="background" src={background} width={1920} height={1080} />
-
-          <div className="absolute inset-0 flex items-center justify-center z-10 rounded-xl">
+    <>
+      <div className="lg:flex lg:justify-center">
+        <button onClick={copyToClipboard}>
+          <div
+            ref={compositeRef}
+            className="w-full h-full lg:max-w-5xl lg:h-auto aspect-auto relative flex items-center justify-center"
+          >
             <Image
-              alt="overlay"
-              src={overlay}
+              alt="background"
+              src={background}
               width={1920}
               height={1080}
-              className="rounded-xl mx-auto my-auto p-4"
             />
+
+            <div className="absolute inset-0 flex items-center justify-center z-10 rounded-xl">
+              <Image
+                alt="overlay"
+                src={overlay}
+                width={1920}
+                height={1080}
+                className="rounded-xl mx-auto my-auto p-4"
+              />
+            </div>
           </div>
-        </div>
-      </button>
-    </div>
+        </button>
+      </div>
+
+      <Toaster className="z-50" />
+    </>
   );
 };
 
