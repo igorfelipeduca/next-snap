@@ -14,49 +14,41 @@ interface Image {
 }
 
 const Home: React.FC = () => {
-  const [imageList, setImageList] = useState<Image[]>([]);
-  const [backupImageList, setBackupImageList] = useState<Image[]>([]);
+  const [overlay, setOverlay] = useState<string>("");
+  const [backupOverlay, setBackupOverlay] = useState<string>("");
+  const [background, setBackground] = useState<string>("");
+  const [backupBackground, setBackupBackground] = useState<string>("");
   const [imagePng, setImagePng] = useState<string>("");
+  const suggestedImageList: string[] = [
+    "https://i.ibb.co/59pqyCJ/image.png",
+    "https://i.ibb.co/DYYtScq/image.png",
+    "https://i.ibb.co/0mcL8K2/image.png",
+    "https://i.ibb.co/r6CSfCG/image.png",
+  ];
 
-  const overlay = imageList.find((image) => image.type === "overlay")?.url;
-
-  const background = imageList.find(
-    (image) => image.type === "background"
-  )?.url;
-
-  const handleUploadImage = () => {
+  const handleUploadImage = (type: string) => {
     const input = document.getElementById("dropzone-file") as HTMLInputElement;
 
     if (!input.files?.length) return;
 
     const files = Array.from(input.files);
 
-    const images = files.map((file) => {
-      const url = URL.createObjectURL(file);
+    const image = {
+      type,
+      url: URL.createObjectURL(files[0]),
+    };
 
-      return {
-        url,
-        type: overlay ? "background" : "overlay",
-      };
-    });
-
-    setImageList((prev) => [...prev, ...images]);
-
-    const overlayExists = images.find((image) => image.type === "overlay");
-    const backgroundExists = images.find(
-      (image) => image.type === "background"
-    );
-
-    if (overlayExists) toast.success("📦 Overlay image uploaded!");
-    if (backgroundExists) toast.success("📦 Background image uploaded!");
-
-    if (backupImageList.length === 2) {
-      setBackupImageList(images);
-
-      console.log({ backupImageList });
+    if (image.type === "background") {
+      setBackground(image.url);
+      setBackupBackground(image.url);
+      toast.success("📦 Background image uploaded!");
     }
 
-    setBackupImageList((prev) => [...prev, ...images]);
+    if (image.type === "overlay") {
+      setOverlay(image.url);
+      setBackupOverlay(image.url);
+      toast.success("📦 Overlay image uploaded!");
+    }
   };
 
   const shareOnTwitter = () => {
@@ -81,7 +73,8 @@ const Home: React.FC = () => {
   }, [overlay, background]);
 
   const handleReset = () => {
-    setImageList([]);
+    setOverlay("");
+    setBackground("");
 
     toast("🗑️ Snap reseted!", {
       action: {
@@ -92,7 +85,8 @@ const Home: React.FC = () => {
   };
 
   const undoReset = () => {
-    setImageList(backupImageList);
+    setOverlay(backupOverlay);
+    setBackground(backupBackground);
 
     toast.success("🤝 Snap restored! Let me get you back on track.");
   };
@@ -171,7 +165,7 @@ const Home: React.FC = () => {
                 src={overlay}
                 alt="overlay"
                 isBlurred
-                className="lg:max-w-5xl"
+                className="lg:max-w-5xl aspect-video object-cover"
               />
             </div>
           ) : (
@@ -210,7 +204,7 @@ const Home: React.FC = () => {
                     type="file"
                     className="hidden"
                     accept="image/*"
-                    onChange={handleUploadImage}
+                    onChange={() => handleUploadImage("overlay")}
                   />
                 </label>
               </div>
@@ -223,48 +217,77 @@ const Home: React.FC = () => {
                 src={background}
                 alt="background"
                 isBlurred
-                className="lg:max-w-5xl"
+                className="lg:max-w-5xl aspect-video object-cover"
               />
             </div>
           ) : (
-            <div className="flex justify-center mt-16 px-8">
-              <div className="flex items-center justify-center w-full lg:max-w-3xl">
-                <label
-                  htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-950 hover:bg-gray-100 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm px-4 text-center">
-                      Upload your{" "}
-                      <span className="font-semibold">background</span> image.
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      SVG, PNG, JPG or GIF (MAX. 800x400px)
-                    </p>
-                  </div>
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleUploadImage}
+            <div className="space-y-8">
+              <div className="flex justify-center mt-16 px-8">
+                <div className="flex items-center justify-center w-full lg:max-w-3xl">
+                  <label
+                    htmlFor="dropzone-file"
+                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-950 hover:bg-gray-100 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm px-4 text-center">
+                        Upload your{" "}
+                        <span className="font-semibold">background</span> image.
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        SVG, PNG, JPG or GIF (MAX. 800x400px)
+                      </p>
+                    </div>
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={() => handleUploadImage("background")}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="flex items-center gap-x-4">
+                  <div className="w-32 h-px bg-gray-700 rounded-sm" />
+
+                  <span className="text-gray-700">or</span>
+
+                  <div className="w-32 h-px bg-gray-700 rounded-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:px-16">
+                {suggestedImageList.map((image, index) => (
+                  <NextImage
+                    alt={`background-${index}`}
+                    key={index}
+                    src={image}
+                    onClick={() => {
+                      setBackground(image);
+                      setBackupBackground(image);
+                      toast.success("📦 Background image uploaded!");
+                    }}
+                    className="rounded-lg aspect-video object-cover cursor-pointer transition-all duration-150 ease-linear hover:scale-105"
+                    isBlurred
                   />
-                </label>
+                ))}
               </div>
             </div>
           )}

@@ -62,15 +62,17 @@ const ImageComposition: React.FC<ImageCompositionProps> = ({
               src={background}
               width={1920}
               height={1080}
+              className="aspect-video"
             />
 
-            <div className="absolute inset-0 flex items-center justify-center z-10 rounded-xl">
+            <div className="absolute inset-0 flex items-center justify-center z-10 rounded-xl p-12 shadow-2xl">
               <Image
                 alt="overlay"
                 src={overlay}
                 width={1920}
                 height={1080}
-                className="rounded-xl mx-auto my-auto p-4"
+                className="mx-auto my-auto aspect-video rounded-lg shadow-2xl border"
+                isBlurred
               />
             </div>
           </div>
