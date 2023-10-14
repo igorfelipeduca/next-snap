@@ -271,7 +271,10 @@ const Home: React.FC = () => {
         </>
       )}
 
-      <div className="mt-16 border-t border-zinc-700 py-4 px-8 flex gap-x-2 items-center">
+      <a
+        href="https://twitter.com/ducaswtf"
+        className="mt-16 border-t border-zinc-700 py-4 px-8 flex gap-x-2 items-center"
+      >
         <NextImage
           src={"https://i.ibb.co/Bwzr3t2/duca.jpg"}
           alt="ducaswtf"
@@ -289,7 +292,7 @@ const Home: React.FC = () => {
           </a>
           .
         </span>
-      </div>
+      </a>
 
       <Toaster className="z-50" />
     </main>
