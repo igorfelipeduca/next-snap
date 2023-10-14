@@ -61,7 +61,7 @@ const Home: React.FC = () => {
 
   const shareOnTwitter = () => {
     const tweetText =
-      "I just created a beautiful screenshot with next-snap 🎉 \n You should really check out \n https://";
+      "I just created a beautiful screenshot with next-snap 🎉 \n You should really check out \n https://next-snapper.vercel.app";
 
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       tweetText
