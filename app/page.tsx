@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import ImageComposition from "../components/ImageComposition";
-import { Button, Image } from "@nextui-org/react";
-import { LocateOff, Share } from "lucide-react";
+import { Button, Image as NextImage } from "@nextui-org/react";
+import { LocateOff, LucideGithub, Share } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import Sig from "./assets/sig.svg";
+import Image from "next/image";
 
 interface Image {
   type?: string;
@@ -97,8 +99,18 @@ const Home: React.FC = () => {
 
   return (
     <main className="min-h-screen flex flex-col justify-between">
-      <div className="p-4 border-b border-zinc-700 flex items-center justify-between">
+      <div className="py-4 lg:px-16 px-8 border-b border-zinc-700 flex items-center justify-between">
         <h1 className="text-zinc-300 text-lg">next-snap</h1>
+
+        <div className="gap-x-4 flex items-center">
+          <a href="https://github.com/igorfelipeduca/next-snap">
+            <LucideGithub className="text-zinc-300" />
+          </a>
+
+          <a href="https://biome.sigcoding.com">
+            <Image className="h-7 w-7" alt="Sig" src={Sig} />
+          </a>
+        </div>
       </div>
 
       {overlay && background ? (
@@ -155,7 +167,7 @@ const Home: React.FC = () => {
         <>
           {overlay ? (
             <div className="px-8 pt-16 lg:flex lg:justify-center">
-              <Image
+              <NextImage
                 src={overlay}
                 alt="overlay"
                 isBlurred
@@ -207,7 +219,7 @@ const Home: React.FC = () => {
 
           {background ? (
             <div className="px-8 pt-16 lg:flex lg:justify-center">
-              <Image
+              <NextImage
                 src={background}
                 alt="background"
                 isBlurred
@@ -260,7 +272,7 @@ const Home: React.FC = () => {
       )}
 
       <div className="mt-16 border-t border-zinc-700 py-4 px-8 flex gap-x-2 items-center">
-        <Image
+        <NextImage
           src={"https://i.ibb.co/Bwzr3t2/duca.jpg"}
           alt="ducaswtf"
           isBlurred
